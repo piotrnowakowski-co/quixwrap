@@ -1,0 +1,146 @@
+# Quix Project Descriptor
+# This file describes the data pipeline and configuration of resources of a Quix Project.
+
+metadata:
+  version: 1.0
+
+# This section describes the Deployments of the data pipeline
+deployments:
+  - name: enricher
+    application: enricher
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 100
+      memory: 200
+      replicas: 1
+    variables:
+      - name: INPUT
+        inputType: InputTopic
+        required: false
+        value: RecordsDownsampled
+      - name: OUTPUT
+        inputType: OutputTopic
+        required: false
+        value: RecordsEnriched
+      - name: DB_CONN
+        inputType: Secret
+        required: false
+        secretKey: DB_CONN_key
+      - name: CONSUMER_GROUP
+        inputType: FreeText
+        required: false
+        value: enricher
+      - name: ENV
+        inputType: FreeText
+        required: true
+        value: development
+  - name: downsampler
+    application: downsampler
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 100
+      memory: 500
+      replicas: 1
+    variables:
+      - name: INPUT
+        inputType: InputTopic
+        required: false
+        value: RecordsReceived
+      - name: OUTPUT
+        inputType: OutputTopic
+        required: false
+        value: RecordsDownsampled
+      - name: CONSUMER_GROUP
+        inputType: FreeText
+        required: false
+        value: downsampler
+      - name: ENV
+        inputType: FreeText
+        required: true
+        value: development
+  - name: influxdb-data-reader
+    application: reader
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: OUTPUT
+        inputType: OutputTopic
+        required: false
+        value: RecordsReceived
+      - name: INFLUXDB_TOKEN
+        inputType: Secret
+        required: false
+        secretKey: INFLUXDB_TOKEN_key
+      - name: INFLUXDB_ORG
+        inputType: FreeText
+        required: false
+        value: my-company
+      - name: INFLUXDB_HOST
+        inputType: FreeText
+        required: false
+        value: http://localhost:8086
+      - name: INFLUXDB_DATABASE
+        inputType: FreeText
+        required: false
+        value: raw-bucket
+      - name: CONSUMER_GROUP
+        inputType: FreeText
+        required: false
+        value: influxdb-data-writer
+      - name: ENV
+        inputType: FreeText
+        required: true
+        value: development
+  - name: influxdb-data-writer
+    application: writer
+    version: latest
+    deploymentType: Service
+    resources:
+      cpu: 200
+      memory: 800
+      replicas: 1
+    variables:
+      - name: INPUT
+        inputType: InputTopic
+        required: false
+        value: RecordsEnriched
+      - name: INFLUXDB_TOKEN
+        inputType: Secret
+        required: false
+        secretKey: INFLUXDB_TOKEN_key
+      - name: INFLUXDB_TAG_KEYS
+        inputType: FreeText
+        required: false
+        value: "['userId', 'userName','userCategory']"
+      - name: INFLUXDB_HOST
+        inputType: FreeText
+        required: false
+        value: https://localhost:8086
+      - name: INFLUXDB_ORG
+        inputType: FreeText
+        required: false
+        value: my-company
+      - name: INFLUXDB_DATABASE
+        inputType: FreeText
+        required: false
+        value: silver-bucket
+      - name: CONSUMER_GROUP
+        inputType: FreeText
+        required: false
+        value: influxdb-data-writer
+      - name: ENV
+        inputType: FreeText
+        required: true
+        value: development
+
+# This section describes the Topics of the data pipeline
+topics:
+  - name: RecordsReceived
+  - name: RecordsEnriched
+  - name: RecordsDownsampled

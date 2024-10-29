@@ -1,0 +1,13 @@
+{{ basecode }}
+
+class {{ title }}Config(Config):
+    {% for var in variables -%}
+    {% if var.type == 'Secret' -%}
+    {{ var.name.lower() }} = Variable("{{var.name}}", qtype="Secret", required={{var.required}})
+    {% else -%}
+    {{ var.name.lower() }} = Variable("{{var.name}}", default="{{var.default}}", required={{var.required}}, qtype="{{var.type}}")
+    {% endif -%}
+    {% endfor %}
+
+class {{ title }}(DeploymentWrapper):
+    config : {{title}}Config = {{ title }}Config()

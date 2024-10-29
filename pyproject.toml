@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quixwrap"
+version = "0.1.0"
+description = "A project for code generation"
+authors = [
+    { name="Piotr Nowakowski", email="piotr.nowakowski@cdq.com" }
+]
+license = { file = "LICENSE" }
+dependencies = [
+    "jinja2",
+    "pyyaml",
+    "typer"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+namespaces = true
+
+[project.scripts]
+quixwrap = "quixwrap.cli:cli"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "build",
+    "isort",
+    "pytest>=6.2",
+    "pytest-dotenv>=0.5.2",
+    "wheel"
+]
+
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+
+[tool.isort]
+profile = "black"
+src_paths = ["src", "tests"]
+
+[tool.pytest.ini_options]
+env_files = ["tests/test.env"]
