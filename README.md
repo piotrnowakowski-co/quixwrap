@@ -9,7 +9,7 @@ The only requirement is a `quix.yaml` file generated using `quix` cli.
 
 ## Installation
 
-`pip install git+https://[github.com/example-user/example-repo.git](https://github.com/piotrnowakowski-co/quixwrap.git)`
+`pip install git+https://github.com/piotrnowakowski-co/quixwrap.git`
 
 
 
