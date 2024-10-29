@@ -1,4 +1,4 @@
-# Background
+# QuixWrap
 Tiny cli generating application and variable wrappers from quix deployment specification.
 
 
