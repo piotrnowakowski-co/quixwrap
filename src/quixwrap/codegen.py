@@ -33,7 +33,7 @@ class DeploymentInfo:
                 name=item["name"],
                 required=item.get("required"),
                 type=item.get("inputType"),
-                default=str(item.get("value")),
+                default=item.get("value"),
             )
             variables.append(v)
         return cls(deployment["name"], variables)

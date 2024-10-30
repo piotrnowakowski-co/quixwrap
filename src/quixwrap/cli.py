@@ -24,7 +24,7 @@ def expand(item: Deployment):
                 var.name,
                 var.type,
                 "Y" if var.required else "N",
-                var.default,
+                str(var.default),
             )
         )
     return res
