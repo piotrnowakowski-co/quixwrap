@@ -35,6 +35,10 @@ deployments:
         inputType: FreeText
         required: true
         value: development
+      - name: DEBUG
+        inputType: FreeText
+        required: false
+        value: true
   - name: downsampler
     application: downsampler
     version: latest
