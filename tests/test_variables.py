@@ -11,7 +11,7 @@ def test_variable_access():
     assert TestConfig.broker_address == "localhost:19092"
     assert TestConfig.env == "testing"
     assert TestConfig.is_test() is True
-    assert TestConfig.is_dev() is False
+    assert TestConfig.is_local() is True
 
 
 def test_default_parsed():

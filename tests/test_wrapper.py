@@ -17,7 +17,9 @@ def test_deployment_wrapper_code(capsys):
     assert enricher.config.debug is True
     assert enricher.config.foo is None
     assert enricher.config.db_conn == "sqlite:///db.sqlite"
+    assert enricher.config.is_local() is True
+    assert enricher.config.is_test()
     print(enricher.config.db_conn)
     out, _ = capsys.readouterr()
     assert "****" in out
-    assert 'db.sqlite' not in out
+    assert "db.sqlite" not in out
