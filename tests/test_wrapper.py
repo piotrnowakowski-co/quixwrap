@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from quixwrap.codegen import QuixWrap
@@ -7,7 +8,11 @@ here = Path(__file__).parent
 config_file = here / "quix.yaml"
 
 globals_dict = {}
-code = QuixWrap(config_file).deployment("enricher").as_py(standalone=False)
+code = (
+    QuixWrap(config_file, os.getenv("YAML_VARIABLES_FILE"))
+    .deployment("enricher")
+    .as_py(standalone=False)
+)
 exec(code, globals_dict)
 enricher = globals_dict["Enricher"]
 
@@ -35,3 +40,7 @@ def test_app_config_non_local(monkeypatch):
     monkeypatch.setenv("Quix__Sdk__Token", "token")
     assert "quix_sdk_token" in enricher.app_config()
     assert "broker_address" not in enricher.app_config()
+
+
+def test_placeholder_var_replacement():
+    assert enricher.config.label == "DefaultEnricher"

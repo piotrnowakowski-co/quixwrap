@@ -1,4 +1,5 @@
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, List, Optional
@@ -64,14 +65,42 @@ class Deployment:
 
 
 class QuixYaml:
-    def __init__(self, filepath: os.PathLike):
+    def __init__(
+        self,
+        filepath: os.PathLike,
+        local_variables_path: os.PathLike = ".quix.yaml.variables",
+    ):
         self.path = os.path.normpath(os.path.abspath(filepath))
         self.conf: dict = {}
+
+        self.local_variables_path = local_variables_path
+
+        self.variables = {}
+        # build variable replacement mapping from local variables file
+        if os.path.exists(self.local_variables_path):
+            with open(self.local_variables_path, "r") as f:
+                content = f.read()
+                for line in content.split("\n"):
+                    items = line.strip().split("=")
+                    key, val = tuple(items)
+                    self.variables[key] = val
+        else:
+            with open(self.path, "r") as f:
+                content = f.read()
+                if len(re.findall(r"\{\{([A-Z]+)\}\}", content)) > 0:
+                    raise FileNotFoundError(
+                        "Placeholder variables detected, but Local variables yaml not found."
+                    )
 
     def read(self):
         if not self.conf:
             with open(self.path, "r", encoding="utf-8") as f:
-                self.conf = yaml.safe_load(f)
+                content = f.read()
+                # replace config file placeholders with values
+                # from local variables yaml
+                for k, v in self.variables.items():
+                    content = content.replace("{{" + k + "}}", v)
+                self.conf = yaml.safe_load(content)
 
     def deployments(self, skip_non_existing=False) -> List[Optional[DeploymentInfo]]:
         items = []
@@ -94,8 +123,8 @@ class QuixYaml:
 
 class QuixWrap:
 
-    def __init__(self, config_file):
-        self.quixyaml = QuixYaml(config_file)
+    def __init__(self, config_file, yaml_variables_file):
+        self.quixyaml = QuixYaml(config_file, yaml_variables_file)
 
     def deployment(self, name) -> Deployment:
         return self.deployments(name)[0]

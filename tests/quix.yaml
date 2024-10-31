@@ -43,6 +43,10 @@ deployments:
         inputType: FreeText
         required: false
         value: None
+      - name: LABEL
+        inputType: FreeText
+        required: false
+        value: {{LABEL}}
   - name: downsampler
     application: downsampler
     version: latest

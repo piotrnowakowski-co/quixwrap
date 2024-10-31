@@ -13,6 +13,7 @@ cli.add_typer(apps, name="apps")
 console = Console()
 
 config_file = os.getenv("CONFIG_FILE", "quix.yaml")
+yaml_variables_file = os.getenv("YAML_VARIABLES_FILE", ".quix.yaml.variables")
 
 
 def expand(item: Deployment):
@@ -44,7 +45,7 @@ def get(
         help="Flag controlling whether the generate code base code should be included in full or imported.",
     ),
 ):
-    qx = QuixWrap(config_file)
+    qx = QuixWrap(config_file, yaml_variables_file)
     item = qx.deployment(name=name)
     if as_py:
         typer.echo(item.as_py(standalone=standalone))
@@ -57,7 +58,7 @@ def get(
 
 @apps.command(help="Returns deployment(s) metadata found in a given yaml file.")
 def list(name: str = typer.Argument(None, help="Name of the application")):
-    qx = QuixWrap(config_file)
+    qx = QuixWrap(config_file, yaml_variables_file)
     table = Table("Application", "Variable", "Type", "Required", "Default")
     for item in qx.deployments(name=name):
         for row in expand(item):
