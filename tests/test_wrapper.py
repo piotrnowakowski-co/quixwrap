@@ -35,6 +35,19 @@ def test_app_config_local():
     assert "quix_sdk_token" not in enricher.app_config()
 
 
+def test_quix_broker_address_is_used_when_no_broker_address_var(monkeypatch):
+    monkeypatch.setenv("Quix__Broker__Address", "kafka:9092")
+    monkeypatch.delenv("BROKER_ADDRESS")
+    conf = enricher.app_config()
+    assert conf["broker_address"] == "kafka:9092"
+
+
+def test_broker_address_is_used_when_no_quix_broker_address_var(monkeypatch):
+    monkeypatch.setenv("Quix__Broker__Address", "kafka:9092")
+    conf = enricher.app_config()
+    assert conf["broker_address"] == "localhost:19092"
+
+
 def test_app_config_non_local(monkeypatch):
     monkeypatch.setenv("ENV", "cloud")
     monkeypatch.setenv("Quix__Sdk__Token", "token")

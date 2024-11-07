@@ -25,6 +25,12 @@ def test_boolean_cast():
 def test_secret_obfuscated(monkeypatch, capsys):
     monkeypatch.setenv("MY_SECRET", "secret")
     assert TestConfig.my_secret == "secret"
+    assert TestConfig.my_secret.text() == "secret"
     print(TestConfig.my_secret)
     out, _ = capsys.readouterr()
     assert "****" in out
+
+
+def test_app_broker_address(monkeypatch):
+    monkeypatch.setenv("Quix__Broker__Address", "kafka:9092")
+    assert TestConfig.quix__broker__address == "kafka:9092"

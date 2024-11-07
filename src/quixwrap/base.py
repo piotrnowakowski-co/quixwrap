@@ -4,6 +4,7 @@ import os
 class Secret(str):
     def __new__(cls, val):
         obj = super().__new__(cls, val)
+        obj._val = val
         return obj
 
     def __str__(self):
@@ -11,6 +12,9 @@ class Secret(str):
 
     def __repr__(self):
         return "Secret: *****"
+
+    def text(self):
+        return self._val
 
     # Descriptor protocol support for managed access to the value
     def __get__(self, obj, objtype=None):
@@ -82,6 +86,8 @@ class EnvMixin:
 
 class Config(EnvMixin):
     broker_address = Variable("BROKER_ADDRESS")
+
+    quix__broker__address = Variable("Quix__Broker__Address")
     quix__sdk__token = Variable("Quix__Sdk__Token", qtype="Secret")
 
     env = Variable("ENV")
@@ -105,8 +111,9 @@ class DeploymentWrapper:
             "auto_offset_reset": auto_offset_reset,
         }
         if cls.config.is_local():
-            conf.update({"broker_address": cls.config.broker_address})
+            addr = cls.config.broker_address or cls.config.quix__broker__address
+            conf.update({"broker_address": addr})
         else:
-            conf.update({"quix_sdk_token": cls.config.quix__sdk__token})
+            conf.update({"quix_sdk_token": cls.config.quix__sdk__token.text()})
         conf.update(**opts)
         return conf
