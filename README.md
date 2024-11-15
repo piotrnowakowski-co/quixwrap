@@ -71,7 +71,7 @@ List all applications
 
 
 ```sh
-CONFIG_FILE=tests/quix.yaml YAML_VARIABLES_FILE=tests/.quix.yaml.variables quixwrap apps list
+CONFIG_FILE=tests/quix.yaml YAML_VARIABLES_FILE=tests/.quix.yaml.variables quixwrap apps list --expand
 
 ┌──────────────────────┬───────────────────┬─────────────┬──────────┬────────────────────────────┐
 │ Application          │ Variable          │ Type        │ Required │ Default                    │ 

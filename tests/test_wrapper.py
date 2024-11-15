@@ -57,3 +57,8 @@ def test_app_config_non_local(monkeypatch):
 
 def test_placeholder_var_replacement():
     assert enricher.config.label == "DefaultEnricher"
+
+
+def test_deployment_info_is_none_if_not_found_in_yaml():
+    app = QuixWrap(config_file, os.getenv("YAML_VARIABLES_FILE"))
+    assert app.deployment("xyz").info is None

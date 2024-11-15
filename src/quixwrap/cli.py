@@ -16,7 +16,11 @@ config_file = os.getenv("CONFIG_FILE", "quix.yaml")
 yaml_variables_file = os.getenv("YAML_VARIABLES_FILE", ".quix.yaml.variables")
 
 
-def expand(item: Deployment):
+def exit(code=0):
+    raise typer.Exit(code)
+
+
+def _expand(item: Deployment):
     res = []
     for var in item.info.variables:
         res.append(
@@ -47,22 +51,34 @@ def get(
 ):
     qx = QuixWrap(config_file, yaml_variables_file)
     item = qx.deployment(name=name)
+    if item.info is None:
+        typer.echo(f"Deployment {name} not found.")
+        exit()
     if as_py:
         typer.echo(item.as_py(standalone=standalone))
-        return
+        exit()
     table = Table("Application", "Variable", "Type", "Required", "Default")
-    for row in expand(item):
+    for row in _expand(item):
         table.add_row(*row)
     console.print(table)
 
 
 @apps.command(help="Returns deployment(s) metadata found in a given yaml file.")
-def list(name: str = typer.Argument(None, help="Name of the application")):
+def list(
+    expand: bool = typer.Option(
+        False, help="Flag controlling whether the variables should be expanded."
+    )
+):
     qx = QuixWrap(config_file, yaml_variables_file)
-    table = Table("Application", "Variable", "Type", "Required", "Default")
-    for item in qx.deployments(name=name):
-        for row in expand(item):
-            table.add_row(*row)
+    if expand:
+        table = Table("Application", "Variable", "Type", "Required", "Default")
+        for item in qx.deployments():
+            for row in _expand(item):
+                table.add_row(*row)
+    else:
+        table = Table("Application")
+        for item in qx.deployments():
+            table.add_row(item.info.name)
     console.print(table)
 
 
