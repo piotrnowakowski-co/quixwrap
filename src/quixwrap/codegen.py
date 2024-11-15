@@ -78,14 +78,15 @@ class QuixYaml:
         self.variables = {}
         # build variable replacement mapping from local variables file
         if os.path.exists(self.local_variables_path):
-            with open(self.local_variables_path, "r") as f:
+            with open(self.local_variables_path, "r", encoding="utf-8") as f:
                 content = f.read()
-                for line in content.split("\n"):
+                lines = [line for line in content.splitlines() if line]
+                for line in lines:
                     items = line.strip().split("=")
                     key, val = tuple(items)
                     self.variables[key] = val
         else:
-            with open(self.path, "r") as f:
+            with open(self.path, "r", encoding="utf-8") as f:
                 content = f.read()
                 if len(re.findall(r"\{\{([A-Z]+)\}\}", content)) > 0:
                     raise FileNotFoundError(
@@ -126,10 +127,10 @@ class QuixWrap:
     def __init__(self, config_file, yaml_variables_file):
         self.quixyaml = QuixYaml(config_file, yaml_variables_file)
 
-    def deployment(self, name) -> Deployment:
+    def deployment(self, name) -> Optional[Deployment]:
         return self.deployments(name)[0]
 
-    def deployments(self, name: str = None) -> List[Optional[Deployment]]:
+    def deployments(self, name: str = None) -> List[Deployment]:
         items = (
             [self.quixyaml.deployment(name)] if name else self.quixyaml.deployments()
         )
